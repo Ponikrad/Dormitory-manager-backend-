@@ -1,0 +1,331 @@
+# ========================================
+# DORMITORY MANAGEMENT SYSTEM CONFIG
+# ========================================
+
+server:
+  port: 8080
+  servlet:
+    context-path:
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# ========================================
+# SPRING CONFIGURATION
+# ========================================
+spring:
+  application:
+    name: dormitory-manager
+
+  # ========================================
+  # DATABASE CONFIGURATION
+  # ========================================
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dormitory_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:22233}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      auto-commit: false
+
+  # ========================================
+  # JPA/HIBERNATE CONFIGURATION
+  # ========================================
+  jpa:
+    database: postgresql
+    open-in-view: false
+    hibernate:
+      ddl-auto: update # Use 'validate' in production
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false # Set to false in production
+
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+        use_sql_comments: true
+        generate_statistics: false # Set to false in production
+
+  # ========================================
+  # WEB CONFIGURATION
+  # ========================================
+  web:
+    resources:
+      add-mappings: true
+
+  # ========================================
+  # FILE UPLOAD CONFIGURATION
+  # ========================================
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 15MB
+      location: ${java.io.tmpdir}
+      resolve-lazily: false
+
+  # ========================================
+  # EMAIL CONFIGURATION
+  # ========================================
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    test-connection: false
+
+  # ========================================
+  # JACKSON CONFIGURATION
+  # ========================================
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-empty-string-as-null-object: true
+    default-property-inclusion: non_null
+    time-zone: Europe/Warsaw
+
+  # ========================================
+  # TASK EXECUTION CONFIGURATION
+  # ========================================
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 100
+        keep-alive: 60s
+      thread-name-prefix: dorm-async-
+
+# ========================================
+# MANAGEMENT/ACTUATOR CONFIGURATION
+# ========================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ========================================
+# CUSTOM APPLICATION PROPERTIES
+# ========================================
+
+# File Storage Configuration
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:uploads/}
+  max-size: ${FILE_MAX_SIZE:10485760} # 10MB in bytes
+  allowed-types: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt,zip
+
+# Application Configuration
+app:
+  name: Dormitory Management System
+  version: 1.0.0
+  description: Comprehensive dormitory management solution
+
+  # ✅ JWT CONFIGURATION - DLA JwtTokenProvider.java
+  jwtSecret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationAndValidation1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890}
+  jwtExpirationInMs: ${JWT_EXPIRATION:86400000}
+
+  contact:
+    name: Support Team
+    email: support@dormitory.com
+
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8000,http://localhost:4200}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+    allowed-headers: "*"
+    allow-credentials: true
+
+# Dormitory Specific Configuration
+dormitory:
+  name: ${DORMITORY_NAME:University Dormitory}
+  address: ${DORMITORY_ADDRESS:123 University Street, City}
+  phone: ${DORMITORY_PHONE:+48 123 456 789}
+  email: ${DORMITORY_EMAIL:info@dormitory.edu}
+
+  # Business Rules
+  rules:
+    max-reservations-per-day: ${MAX_RESERVATIONS_PER_DAY:3}
+    max-reservation-duration-hours: ${MAX_RESERVATION_DURATION:8}
+    advance-booking-days: ${ADVANCE_BOOKING_DAYS:14}
+    payment-due-days: ${PAYMENT_DUE_DAYS:30}
+    key-return-grace-period-hours: ${KEY_RETURN_GRACE_HOURS:2}
+    issue-response-time-hours: ${ISSUE_RESPONSE_TIME:24}
+
+  # Pricing
+  pricing:
+    application-fee: ${APPLICATION_FEE:50.00}
+    room-deposit: ${ROOM_DEPOSIT:500.00}
+    key-deposit: ${KEY_DEPOSIT:100.00}
+    late-fee-per-day: ${LATE_FEE_PER_DAY:10.00}
+
+  # Notifications
+  notifications:
+    enabled: ${NOTIFICATIONS_ENABLED:true}
+    email-enabled: ${EMAIL_NOTIFICATIONS_ENABLED:true}
+    push-enabled: ${PUSH_NOTIFICATIONS_ENABLED:true}
+    sms-enabled: ${SMS_NOTIFICATIONS_ENABLED:false}
+
+# Firebase Configuration (for push notifications)
+firebase:
+  enabled: ${FIREBASE_ENABLED:false}
+  config-path: ${FIREBASE_CONFIG_PATH:firebase-service-account.json}
+  database-url: ${FIREBASE_DATABASE_URL:https://your-project.firebaseio.com}
+
+# External Services Configuration
+external:
+  payment:
+    provider: ${PAYMENT_PROVIDER:mock} # mock, stripe, payu
+    stripe:
+      secret-key: ${STRIPE_SECRET_KEY:sk_test_...}
+      webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_...}
+    payu:
+      merchant-id: ${PAYU_MERCHANT_ID:your-merchant-id}
+      secret-key: ${PAYU_SECRET_KEY:your-secret-key}
+      environment: ${PAYU_ENVIRONMENT:sandbox} # sandbox, production
+
+  sms:
+    provider: ${SMS_PROVIDER:mock} # mock, twilio, aws-sns
+    twilio:
+      account-sid: ${TWILIO_ACCOUNT_SID:your-account-sid}
+      auth-token: ${TWILIO_AUTH_TOKEN:your-auth-token}
+      phone-number: ${TWILIO_PHONE_NUMBER:+1234567890}
+
+# Logging Configuration
+logging:
+  level:
+    com.dorm.manag: ${LOG_LEVEL:INFO}
+    org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:WARN}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${SQL_PARAM_LOG_LEVEL:WARN}
+    root: ${ROOT_LOG_LEVEL:INFO}
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+  file:
+    name: ${LOG_FILE:logs/dormitory-manager.log}
+    max-size: ${LOG_FILE_MAX_SIZE:100MB}
+    max-history: ${LOG_FILE_MAX_HISTORY:30}
+
+# API Documentation
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+  show-actuator: true
+
+# ========================================
+# ENVIRONMENT SPECIFIC OVERRIDES
+# ========================================
+
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dormitory_dev_db
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        generate_statistics: true
+
+logging:
+  level:
+    com.dorm.manag: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        generate_statistics: false
+
+  security:
+    require-ssl: true
+
+server:
+  compression:
+    enabled: true
+
+logging:
+  level:
+    com.dorm.manag: WARN
+    org.springframework.security: ERROR
+    org.hibernate.SQL: ERROR
+    root: WARN
+  file:
+    name: /var/log/dormitory-manager/application.log
